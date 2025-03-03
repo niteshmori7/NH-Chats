@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_advanced_drawer/flutter_advanced_drawer.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:nhchat/profile%20message.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   runApp(HomeScreen());
@@ -14,6 +16,35 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final _advancedDrawerController = AdvancedDrawerController();
+
+  String? _profileImagePath;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadProfileImage();
+  }
+
+  Future<void> _loadProfileImage() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _profileImagePath = prefs.getString('profile_image');
+    });
+  }
+
+  Future<void> _pickImage() async {
+    final ImagePicker picker = ImagePicker();
+    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+
+    if (image != null) {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setString('profile_image', image.path);
+
+      setState(() {
+        _profileImagePath = image.path; // Update UI immediately
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -317,7 +348,7 @@ alexcarry(BuildContext context){
     ),
     child: InkWell(
       onTap: (){
-        Navigator.push(context, MaterialPageRoute(builder: (BuildContext context)=> chmessage()));
+        Navigator.push(context, MaterialPageRoute(builder: (BuildContext context)=> ChMessage()));
       },
       child: Column(
         children: [
